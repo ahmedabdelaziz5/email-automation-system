@@ -13,15 +13,21 @@ require("dotenv").config();
 const {connection} = require("./config/db.config");
 connection();
 
+//routes
+app.use(require('./routes/user.route'));
+app.use(require('./routes/templates.route'));
+app.use(require('./routes/event.route'));
 
 const http = require("http");
 const server = http.createServer(app);
-
 
 //production port
 server.listen(process.env.PORT || 3000, process.env.LOCAL_HOST || "0.0.0.0", () => {
     console.log(`Server is up and runing on port ${process.env.PORT}!`)
 })
+
+const date = new Date(2023,8,15,4,9,0)
+console.log(date);
 
 
  
