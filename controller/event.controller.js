@@ -1,5 +1,6 @@
 const { eventModel } = require('../modules/events/model/event.model');
 const { scheduleEvent } = require('../schedulingServices/scheduleEmails')
+const schedule = require('node-schedule');
 const mongoose = require('mongoose');
 
 exports.addEvent = async (req, res) => {
@@ -40,42 +41,38 @@ exports.addEvent = async (req, res) => {
 
 exports.cancelScheduledEvent = async (req, res) => {
     try {
-        const { emailSubject, emailContent, templateName } = req.body;
-        const templateId = req.params.templateId;
+        const { jobId } = req.params;
+        const { userId } = req.user;
+        const job = schedule.scheduledJobs[jobId];
 
-        const user = await userModel.findByIdAndUpdate(
-            { _id: req.user.userId },
-            {
-                $set: {
-                    "userTemplates.$[elem].emailSubject": emailSubject,
-                    "userTemplates.$[elem].emailContent": emailContent,
-                    "userTemplates.$[elem].templateName": templateName,
-                },
-            },
-            {
-                arrayFilters: [{ "elem._id": templateId }]
-            }
-        );
-
-        if (!user) {
+        if (!job) {
             return res.status(400).json({
-                message: "there is no such user"
-            })
+                message: "There is no such event!"
+            });
         }
 
-        return res.status(200).json({
-            message: "success"
-        })
-
+        job.cancel();
+        delete schedule.scheduledJobs[jobId];
+        await eventModel.deleteOne({ _id: jobId, userId });
+        // return res.status(200).json({
+        //     message: "success"
+        // })
+        // see all the schedueld events to make sure that the job is canceled
+        const jobs = Object.keys(schedule.scheduledJobs).map((key) => ({
+            id: key,
+            name: schedule.scheduledJobs[key].name,
+            nextInvocation: schedule.scheduledJobs[key].nextInvocation(),
+        }));
+        res.send(jobs);
     }
     catch (err) {
         console.log(err);
         res.status(500).json({
             message: "error",
-            err
-        })
-    };
-}
+            error: err,
+        });
+    }
+};
 
 exports.getAllScheduledEvents = async (req, res) => {
     try {
@@ -84,8 +81,8 @@ exports.getAllScheduledEvents = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        let events = await eventModel.find({ userId, isScheduled : true }).sort({ sendAt: -1 }).skip(skip).limit(limit).lean();
-        const totalNumOfItems = await eventModel.countDocuments({ userId,  isScheduled : true });
+        let events = await eventModel.find({ userId, isScheduled: true }).sort({ sendAt: -1 }).skip(skip).limit(limit).lean();
+        const totalNumOfItems = await eventModel.countDocuments({ userId, isScheduled: true });
 
         if (!events || events.length === 0) {
             return res.status(400).json({

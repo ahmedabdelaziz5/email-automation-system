@@ -1,7 +1,10 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const mongoose = require('mongoose');
 const { userModel } = require('../modules/user/model/user.model');
+const { eventModel } = require('../modules/events/model/event.model'); 
 const { setUpMails } = require('../mailServices/verificationMail');
+const {setUpReceiversMails} = require('../mailServices/sendEmails');
 const { hashPassword } = require('../helpers/passwordHashing');
 const { generatePasswod } = require('../helpers/generatePassword');
 
@@ -33,7 +36,7 @@ exports.signUp = async (req, res) => {
             .then(async () => {
                 result = await setUpMails(emailType = "verificationMail", { email });
             })
-        res.status(result.statusCode).json({
+        return res.status(result.statusCode).json({
             message: result.message
         })
 
@@ -71,6 +74,7 @@ exports.login = async (req, res) => {
                 message: "incorrct password "
             });
         }
+        
         let token = jwt.sign({ email: user.email, userName: user.userName, userId : user._id }, process.env.SECRET_TOKEN);
         delete user.password;
         delete user.isVerified;
@@ -207,3 +211,49 @@ exports.verifyAccount = async (req, res) => {
     return res.send("your account was verified successfully !")
 }
  
+exports.sendEmail = async (req, res) => {
+    try{
+        const { email, userName, userId } = req.user;
+        const { templateName, eventName, recivers, emailCredentials } = req.body;
+        const eventId = new mongoose.Types.ObjectId();
+
+        let saveEventPromise = eventModel.create({
+            _id : eventId,
+            userMail: email,
+            userName: userName,
+            userId: userId,
+            templateName: templateName,
+            eventName: eventName,
+            recivers: recivers,
+            createdAt: new Date(),
+            isScheduled: false,
+            sendAt: Date.now(),
+            emailSubject: emailCredentials.emailSubject,
+            emailContent: emailCredentials.emailContent,
+        })
+
+        res.status(200).json({
+            message : "success"
+        })
+
+        let sendEmailsPromise = setUpReceiversMails(emailCredentials, recivers);
+        
+        let [saveEventResult, sendEmailsResult] = await Promise.allSettled([saveEventPromise, sendEmailsPromise]);
+
+        if (saveEventResult.status === 'fulfilled' && sendEmailsResult.status === 'fulfilled') {
+            let sendConfirmationMailPromise = setUpMails(emailType = "confirmationEmail", {email: email}); 
+            let updateEventStatusPromise = eventModel.updateOne({ _id: eventId, userId }, { eventStatus : "done" });
+            await Promise.all([sendConfirmationMailPromise, updateEventStatusPromise]);
+        }
+        else{
+           await eventModel.updateOne({ _id: eventId, userId }, { eventStatus : "faild" });
+        }
+
+    }
+    catch(err){
+        return res.status(500).json({
+            message: "error",
+            err
+        })
+    }
+}

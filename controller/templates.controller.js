@@ -21,7 +21,6 @@ exports.addTemplate = async (req, res) => {
     }
 
     catch (err) {
-        console.log("SDfsfsf");
         res.status(500).json({
             message: "error",
             err

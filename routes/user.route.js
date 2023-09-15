@@ -6,7 +6,8 @@ const {
     forgetPassword,
     editProfile,
     changePassword,
-    verifyAccount
+    verifyAccount,
+    sendEmail
 } = require('../controller/user.controller'); // controllers 
 
 const {
@@ -14,7 +15,8 @@ const {
     loginValid,
     forgetPasswordValid,
     editProfileValid,
-    changePasswordValid
+    changePasswordValid,
+    sendEmailValid
 } = require('../modules/user/validation/user.validation'); // validation schemas 
 
 const { validateRequest } = require('../validator/req.validation'); // middleware to validate request body 
@@ -24,6 +26,7 @@ app.get('/verifyAccount', verifyAccount);
 app.post('/signUp', validateRequest(signUpValid), signUp);
 app.post('/login', validateRequest(loginValid), login);
 app.post('/forgetPassword', validateRequest(forgetPasswordValid), forgetPassword);
+app.post('/sendEmail', decodeToken(), validateRequest(sendEmailValid), sendEmail );
 app.patch('/editProfile', decodeToken(), validateRequest(editProfileValid), editProfile);
 app.patch('/changePassword', decodeToken(), validateRequest(changePasswordValid), changePassword);
 

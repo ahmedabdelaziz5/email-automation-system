@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 exports.setUpMails = async (emailType, emailCredentials) => {
 
   let mailOptions = {
-    from: '1st task',
+    from: '3rd task',
     to: `${emailCredentials.email}`,
   };
 
@@ -24,21 +24,17 @@ exports.setUpMails = async (emailType, emailCredentials) => {
     your new password is : "${emailCredentials.newPassword}" `
   }
 
-  else if (emailType === "scheduledEmail") {
+  else if (emailType === "confirmationEmail") {
     mailOptions['subject'] = "status update for your scheduled email"
-    
-    if (emailCredentials.result.statusCode === 200) {
-      mailOptions['text'] = `Hi ,
 
-      Your meal delivery has been confirmed and sent successfully on ${new Date().toLocaleDateString()}.
+    mailOptions['text'] = `Hi ,
+
+Your email delivery has been confirmed and sent successfully on ${new Date().toLocaleDateString()}.
+
+Thank you for being a customer!
       
-      Thank you for being a customer!
-      
-      Sincerely.`
-    }
-    else {
-      mailOptions['text'] = "your emails were not sent , please try again !";
-    }
+Sincerely.`
+
 
   }
 
@@ -64,7 +60,7 @@ const sendEmails = async (mailOptions) => {
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       obj.statusCode = 400,
-        obj.message = "could not send your email"
+      obj.message = "could not send your email"
     }
   })
 
