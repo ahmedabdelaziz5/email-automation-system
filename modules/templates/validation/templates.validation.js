@@ -2,7 +2,7 @@ const Joi = require('joi') ;
 
 module.exports = {
 
-    scheduleEventValid : {
+    addEventValid : {
         
         body:Joi.object().required().keys({
 

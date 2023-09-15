@@ -2,7 +2,7 @@ const { eventModel } = require('../modules/events/model/event.model');
 const { scheduleEvent } = require('../schedulingServices/scheduleEmails')
 const mongoose = require('mongoose');
 
-exports.scheduleEvent = async (req, res) => {
+exports.addEvent = async (req, res) => {
     try {
         const { email, userName, userId } = req.user;
         const { templateName, eventName, recivers, emailCredentials } = req.body;
@@ -84,8 +84,8 @@ exports.getAllScheduledEvents = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        let events = await eventModel.find({ userId }).sort({ sendAt: -1 }).skip(skip).limit(limit).lean();
-        const totalNumOfItems = await eventModel.countDocuments({ userId });
+        let events = await eventModel.find({ userId, isScheduled : true }).sort({ sendAt: -1 }).skip(skip).limit(limit).lean();
+        const totalNumOfItems = await eventModel.countDocuments({ userId,  isScheduled : true });
 
         if (!events || events.length === 0) {
             return res.status(400).json({
