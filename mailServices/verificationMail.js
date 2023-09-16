@@ -25,11 +25,25 @@ exports.setUpMails = async (emailType, emailCredentials) => {
   }
 
   else if (emailType === "confirmationEmail") {
-    mailOptions['subject'] = "status update for your scheduled email"
+    mailOptions['subject'] = "status update for your emails"
 
     mailOptions['text'] = `Hi ,
 
 Your email delivery has been confirmed and sent successfully on ${new Date().toLocaleDateString()}.
+
+Thank you for being a customer!
+      
+Sincerely.`
+
+
+  }
+
+  else if (emailType === "failerEmail") {
+    mailOptions['subject'] = "status update for your emails"
+
+    mailOptions['text'] = `Hi ,
+
+Your email delivery faild to be sent on ${new Date().toLocaleDateString()}, please check your emails updates and try to send them later.
 
 Thank you for being a customer!
       

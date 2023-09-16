@@ -246,7 +246,9 @@ exports.sendEmail = async (req, res) => {
             await Promise.all([sendConfirmationMailPromise, updateEventStatusPromise]);
         }
         else{
-           await eventModel.updateOne({ _id: eventId, userId }, { eventStatus : "faild" });
+           const  updateStatusPromis =  eventModel.updateOne({ _id: eventId, userId }, { eventStatus : "faild" });
+           const sendFailerEmailPromis =  setUpMails("failerEmail", emailCredentials = { email, result });
+           await Promise.all([updateStatusPromis, sendFailerEmailPromis]);
         }
 
     }
