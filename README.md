@@ -18,7 +18,7 @@
 
 #### Email automation is a way to create emails that reach the right people with the right message at the right moment without doing the work every time, sending automated emails leveraging a marketing automation tool.
 
-#### the term of emails will be mentioned as event ( we can say that any scheduled email is scheduled event , etc.. )
+#### the term of emails will be mentioned as event ( we can say that any scheduled email is a scheduled event , etc.. )
 
 # Modules
 
@@ -51,7 +51,7 @@
 |/signUp|POST|allows user to create an account 
 |/login|POST|allows user to sign in and login to his account  
 |/forgetPassword|POST|allows user to ask for a new password
-|/sendEmail|POST|allows user to send emails to a group of users
+|/sendEmail|POST|allows user to make immediate event and send email to a group of users
 |/editProfile|PATCH|allows user to edit/update his profile 
 |/changePassword|PATCH|allows user to change his password 
 |/verifyAccount|GET|allows customer to recive a verify his email after creating account
