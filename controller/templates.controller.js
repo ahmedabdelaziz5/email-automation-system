@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { userModel } = require('../modules/user/model/user.model');
 
 exports.addTemplate = async (req, res) => {
@@ -26,12 +27,18 @@ exports.addTemplate = async (req, res) => {
             err
         })
     };
-}
+} 
 
 exports.editSpecificTemplate = async (req, res) => {
     try {
         const { emailSubject, emailContent, templateName } = req.body;
         const templateId = req.params.templateId;
+
+        if (!mongoose.Types.ObjectId.isValid(templateId)) {
+            return res.status(400).json({
+                message: "invalid template id"
+            })
+        }
 
         const user = await userModel.findByIdAndUpdate(
             { _id: req.user.userId },
@@ -43,8 +50,8 @@ exports.editSpecificTemplate = async (req, res) => {
                 },
             },
             {
-                arrayFilters: [{ "elem._id" : templateId }] 
-            }  
+                arrayFilters: [{ "elem._id": templateId }]
+            }
         );
 
         if (!user) {
@@ -82,6 +89,12 @@ exports.getAllTemplates = async (req, res) => {
             })
         }
 
+        if (!user.userTemplates.length) {
+            return res.status(200).json({
+                message: "you do not have any templates yet !"
+            })
+        }
+
         return res.status(200).json({
             message: "success",
             data: user.userTemplates.slice(skip, skip + limit),
@@ -103,10 +116,16 @@ exports.deleteTemplate = async (req, res) => {
     try {
         const templateId = req.params.templateId;
 
+        if (!mongoose.Types.ObjectId.isValid(templateId)) {
+            return res.status(400).json({
+                message: "invalid template id"
+            })
+        }
+
         const user = await userModel.findByIdAndUpdate(
-                { _id : req.user.userId },
-                { $pull: { userTemplates: { _id: templateId } } },
-            )
+            { _id: req.user.userId },
+            { $pull: { userTemplates: { _id: templateId } } },
+        )
 
         if (!user) {
             return res.status(400).json({

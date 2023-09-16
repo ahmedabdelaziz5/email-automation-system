@@ -50,13 +50,13 @@ exports.cancelScheduledEvent = async (req, res) => {
                 message: "There is no such event!"
             });
         }
-
+//
         job.cancel();
         delete schedule.scheduledJobs[jobId];
         await eventModel.deleteOne({ _id: jobId, userId });
-        // return res.status(200).json({
-        //     message: "success"
-        // })
+        return res.status(200).json({
+            message: "success"
+        })
         // see all the schedueld events to make sure that the job is canceled
         const jobs = Object.keys(schedule.scheduledJobs).map((key) => ({
             id: key,
