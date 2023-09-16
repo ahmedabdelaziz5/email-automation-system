@@ -16,7 +16,7 @@
 ![Static Badge](https://img.shields.io/badge/mongoose-7.5.0-white)
 
 
-#### Email automation is a way to create emails that reach the right people with the right message at the right moment—without doing the work every time, sending automated messages leveraging a marketing automation tool.
+#### Email automation is a way to create emails that reach the right people with the right message at the right moment without doing the work every time, sending automated emails leveraging a marketing automation tool.
 
 #### the term of emails will be mentioned as event ( we can say that any scheduled email is scheduled event , etc.. )
 
